@@ -1,0 +1,45 @@
+{
+    "name": "InputController",
+    "maps": [
+        {
+            "name": "Input",
+            "id": "bc7f50fd-5ad2-437a-850d-78827dbb4b6f",
+            "actions": [
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "3e0e9932-e925-400c-819d-c25e57f0cb90",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c27c2aef-3102-467f-a522-401b7ae491db",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "InputSchemes",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "InputSchemes",
+            "bindingGroup": "InputSchemes",
+            "devices": [
+                {
+                    "devicePath": "<Mouse>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}
