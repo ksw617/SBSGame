@@ -7,7 +7,7 @@ public class Grid : MonoBehaviour
     public Vector2 gridWorldSize;
     public LayerMask block;
 
-    [SerializeField] private Node[,] grid;
+    public Node[,] grid;
     public float nodeRadius;
     [SerializeField] private float nodeDiameter;
     [SerializeField] private int nodeXCount, nodeYCount;
