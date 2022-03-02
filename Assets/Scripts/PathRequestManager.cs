@@ -7,6 +7,19 @@ using System;
 
 public class PathRequestManager : MonoBehaviour
 {
+    private static PathRequestManager instance;
+    public static PathRequestManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<PathRequestManager>();
+            }
+
+            return instance;
+        }
+    }
     [SerializeField] private PathFinding pathFinding;
     Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
     PathRequest currentPathRequest;

@@ -6,9 +6,6 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Animator animator;
     public float speed = 3f;
-
-    public PathRequestManager pathRequestManager;
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -16,7 +13,8 @@ public class PlayerController : MonoBehaviour
 
     public void FollowPath(Vector3 targetPosition)
     {
-        pathRequestManager.RequestPath(transform.position, targetPosition, CallFollowTarget);
+        //¼öÁ¤
+        PathRequestManager.Instance.RequestPath(transform.position, targetPosition, CallFollowTarget);
     }
 
     private void CallFollowTarget(Stack<Vector3> path, bool isSuccess)
