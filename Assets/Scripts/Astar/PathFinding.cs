@@ -91,39 +91,32 @@ public class PathFinding : MonoBehaviour
         List<Node> path = new List<Node>();
 
         Node currentNode = targetNode;
+        path.Add(currentNode);
+
         while (currentNode != startNode)
         {
-            path.Add(currentNode);
             currentNode = currentNode.Parent;
+            path.Add(currentNode);
         }
 
         return SimplifyPath(path);
     }
 
-    //경로를 단순하게
     Stack<Vector3> SimplifyPath(List<Node> path)
     {
-        //단순화시킨 경로를 담을 stack
         Stack<Vector3> wayPoints = new Stack<Vector3>();
-        //비교할 옛날 방향
-        Vector2Int oldDirection = Vector2Int.zero; //(0,0)
+        Vector2Int oldDirection = Vector2Int.zero; 
 
-        //List안에 있는 모든 node 비교
         for (int i = 1; i < path.Count; i++)
         {
-            //비교할 새로운 방향 = 전 노드 좌표 - 현재 노드 좌표
             Vector2Int newDirection = new Vector2Int(path[i-1].X - path[i].X, path[i-1].Y - path[i].Y);
-            //옛날 방향과 새로운 방향이 다를경우
             if (oldDirection != newDirection)
             {
-                //이전 노드의 좌표를 추가
                 wayPoints.Push(path[i - 1].Position);
-                //예전 방향을 새로운 방향으로 업데이트
                 oldDirection = newDirection;
             }
         }
 
-        //경로 반환
         return wayPoints;
     }
 

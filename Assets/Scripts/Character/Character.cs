@@ -1,28 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class Character : MonoBehaviour
 {
-    [SerializeField] private Animator animator;
+    [SerializeField] protected Animator animator;
     public float speed = 3f;
+    protected Action callback;
+    private Coroutine followTarget;
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        followTarget = null;
     }
 
-    public void FollowPath(Vector3 targetPosition)
-    {
-        //¼öÁ¤
-        PathRequestManager.Instance.RequestPath(transform.position, targetPosition, CallFollowTarget);
-    }
 
-    private void CallFollowTarget(Stack<Vector3> path, bool isSuccess)
+    protected void CallFollowTarget(Stack<Vector3> path, bool isSuccess)
     {
         if (isSuccess)
         {
-            StopCoroutine("FollowTarget");
-            StartCoroutine("FollowTarget", path);
+            Debug.Log("4");
+            if (followTarget != null)
+            {
+                StopCoroutine(followTarget);
+            }
+
+            followTarget = StartCoroutine(FollowTarget(path));
         }
     }
 
@@ -34,22 +38,21 @@ public class PlayerController : MonoBehaviour
         transform.LookAt(nextPosition);
         animator.SetFloat("Speed", 1f);
 
-       while (points.Count > 0)
-       {
+        while (points.Count > 0)
+        {
             transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
-       
-           if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
-           {
-               nextPosition = points.Pop();
+
+            if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
+            {
+                nextPosition = points.Pop();
                 transform.LookAt(nextPosition);
             }
-       
-           yield return new WaitForFixedUpdate();
-       
-       }
+
+            yield return new WaitForFixedUpdate();
+
+        }
 
         transform.LookAt(nextPosition);
-
         while (true)
         {
             transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
@@ -63,8 +66,15 @@ public class PlayerController : MonoBehaviour
         }
 
         animator.SetFloat("Speed", 0f);
+
+
+        //if (callback != null)
+        //{
+        //    callback();
+        //}
+
+        callback?.Invoke();
+        followTarget = null;
         yield return null;
     }
-
-   
 }

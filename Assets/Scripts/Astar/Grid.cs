@@ -10,7 +10,7 @@ public class Grid : MonoBehaviour
     public Node[,] grid;
     public float nodeRadius;
     [SerializeField] private float nodeDiameter;
-    [SerializeField] private int nodeXCount, nodeYCount;
+    public int nodeXCount, nodeYCount;
 
     //³ëµåÀÇ ÃÑ °¹¼ö
     public int GridCount { get => nodeXCount * nodeYCount; }
