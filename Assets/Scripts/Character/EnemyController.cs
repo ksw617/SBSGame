@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 public class EnemyController : Character
 {
     public Grid grid;
+    public Transform player;
     Node other;
     Node myNode;
 
@@ -15,48 +18,84 @@ public class EnemyController : Character
 
     void FindOtherDestination()
     {
-        Debug.Log("1");
-
         StartCoroutine("StartFindDestination");
-
     }
 
     IEnumerator StartFindDestination()
     {
+        yield return new WaitForSeconds(3f);
+
         myNode = grid.GetNodeFromPosition(transform.position);
-        Vector2Int myPosition = new Vector2Int(myNode.X, myNode.Y);
-        do
-        {
-            Vector2Int randPos = GetRandomPosition(myPosition, 3);
-            other = grid.grid[randPos.x, randPos.y];
-            yield return new WaitForFixedUpdate();
-        }
-        while (!other.Walkable);
+        Node playerNode = grid.GetNodeFromPosition(player.position);     
+        List<Node> walkableNode = GetNodes(10, myNode.X, myNode.Y, playerNode);
+       
+        int randIndex = Random.Range(0, walkableNode.Count);
+        other = walkableNode[randIndex];
 
         PathRequestManager.Instance.RequestPath(transform.position, other.Position, CallFollowTarget);
+        yield return null;
     }
 
-    int RandomSign { get => Random.Range(0, 2) == 0 ? -1 : 1; }
 
-    Vector2Int GetRandomPosition(Vector2Int center, int range)
+    private List<Node> GetNodes(int nRange, int nCenterX, int nCenterY, Node playerNode)
     {
-        Vector2Int checkPoint;
-        do
-        {
-            int randomX, randomY;
-            do
-            {
-                randomX = Random.Range(0, range + 1);
-                randomY = Random.Range(0, range - randomX + 1);
-            }
-            while (randomX == 0 && randomY == 0);
+        //¿Ü°¢¼± ÁÂÇ¥
+        List<Node> nodes = new();
+        Vector2Int playerPosition = new Vector2Int(playerNode.X, playerNode.Y);
 
-            checkPoint = new Vector2Int(randomX * RandomSign, randomY * RandomSign) + center;
+        for (int i = 0; i < nRange; ++i)
+        {
+            
+            Vector2Int point = new Vector2Int(nCenterX - i, nCenterY - nRange + i);
+            if (playerPosition == point)
+            {
+                nodes.Clear();
+                nodes.Add(playerNode);
+                break;
+            }
+            CheckNode(nodes, point);
+
+            point = new Vector2Int(nCenterX - nRange + i, nCenterY + i);
+            if (playerPosition == point)
+            {
+                nodes.Clear();
+                nodes.Add(playerNode);
+                break;
+            }
+            CheckNode(nodes, point);
+
+            point = new Vector2Int(nCenterX + i, nCenterY + nRange - i);
+            if (playerPosition == point)
+            {
+                nodes.Clear();
+                nodes.Add(playerNode);
+                break;
+            }
+            CheckNode(nodes, point);
+
+            point = new Vector2Int(nCenterX + nRange - i, nCenterY - i);
+            if (playerPosition == point)
+            {
+                nodes.Clear();
+                nodes.Add(playerNode);
+                break;
+            }
+            CheckNode(nodes, point);
 
         }
-        while ((0 > checkPoint.x || checkPoint.x >= grid.nodeXCount) || (0 > checkPoint.y || checkPoint.y >= grid.nodeYCount));
 
-        return checkPoint;
+        return nodes;
+    }
+
+    private void CheckNode(List<Node> nodes, Vector2Int point)
+    {
+        if ((0 <= point.x && point.x < grid.nodeXCount) && (0 <= point.y && point.y < grid.nodeYCount))
+        {
+            if (grid.grid[point.x, point.y].Walkable)
+            {
+                nodes.Add(grid.grid[point.x, point.y]);
+            }
+        }
     }
 
     private void OnDrawGizmos()

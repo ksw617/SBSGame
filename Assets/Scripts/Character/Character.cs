@@ -20,7 +20,6 @@ public class Character : MonoBehaviour
     {
         if (isSuccess)
         {
-            Debug.Log("4");
             if (followTarget != null)
             {
                 StopCoroutine(followTarget);
@@ -33,7 +32,6 @@ public class Character : MonoBehaviour
 
     IEnumerator FollowTarget(Stack<Vector3> points)
     {
-        Debug.Log(points.Count);
         Vector3 nextPosition = points.Pop();
         transform.LookAt(nextPosition);
         animator.SetFloat("Speed", 1f);
