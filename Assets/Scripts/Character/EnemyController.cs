@@ -1,18 +1,18 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
 public class EnemyController : Character
 {
     public Grid grid;
     public Transform player;
     Node other;
     Node myNode;
+    List<Node> walkableNode;
+
 
     private void Start()
     {
         FindOtherDestination();
-
         callback = FindOtherDestination;
     }
 
@@ -23,12 +23,12 @@ public class EnemyController : Character
 
     IEnumerator StartFindDestination()
     {
-        yield return new WaitForSeconds(3f);
+        //yield return new WaitForSeconds(3f);
 
         myNode = grid.GetNodeFromPosition(transform.position);
-        Node playerNode = grid.GetNodeFromPosition(player.position);     
-        List<Node> walkableNode = GetNodes(10, myNode.X, myNode.Y, playerNode);
-       
+        Node playerNode = grid.GetNodeFromPosition(player.position);
+        walkableNode = GetNodes(15, myNode.X, myNode.Y, playerNode);
+
         int randIndex = Random.Range(0, walkableNode.Count);
         other = walkableNode[randIndex];
 
@@ -43,46 +43,51 @@ public class EnemyController : Character
         List<Node> nodes = new();
         Vector2Int playerPosition = new Vector2Int(playerNode.X, playerNode.Y);
 
-        for (int i = 0; i < nRange; ++i)
+        for (int index = 1; index < nRange; index++)
         {
-            
-            Vector2Int point = new Vector2Int(nCenterX - i, nCenterY - nRange + i);
-            if (playerPosition == point)
+            for (int i = 0; i < index; i++)
             {
-                nodes.Clear();
-                nodes.Add(playerNode);
-                break;
-            }
-            CheckNode(nodes, point);
 
-            point = new Vector2Int(nCenterX - nRange + i, nCenterY + i);
-            if (playerPosition == point)
-            {
-                nodes.Clear();
-                nodes.Add(playerNode);
-                break;
-            }
-            CheckNode(nodes, point);
+                Vector2Int point = new Vector2Int(nCenterX - i, nCenterY - index + i);
+                if (playerPosition == point)
+                {
+                    nodes.Clear();
+                    nodes.Add(playerNode);
+                    return nodes;
+                }
+                CheckNode(nodes, point);
 
-            point = new Vector2Int(nCenterX + i, nCenterY + nRange - i);
-            if (playerPosition == point)
-            {
-                nodes.Clear();
-                nodes.Add(playerNode);
-                break;
-            }
-            CheckNode(nodes, point);
+                point = new Vector2Int(nCenterX - index + i, nCenterY + i);
+                if (playerPosition == point)
+                {
+                    nodes.Clear();
+                    nodes.Add(playerNode);
+                    return nodes;
+                }
+                CheckNode(nodes, point);
 
-            point = new Vector2Int(nCenterX + nRange - i, nCenterY - i);
-            if (playerPosition == point)
-            {
-                nodes.Clear();
-                nodes.Add(playerNode);
-                break;
-            }
-            CheckNode(nodes, point);
+                point = new Vector2Int(nCenterX + i, nCenterY + index - i);
+                if (playerPosition == point)
+                {
+                    nodes.Clear();
+                    nodes.Add(playerNode);
+                    return nodes;
+                }
+                CheckNode(nodes, point);
 
+                point = new Vector2Int(nCenterX + index - i, nCenterY - i);
+                if (playerPosition == point)
+                {
+                    nodes.Clear();
+                    nodes.Add(playerNode);
+                    return nodes;
+                }
+                CheckNode(nodes, point);
+
+            }
         }
+
+
 
         return nodes;
     }
@@ -98,8 +103,20 @@ public class EnemyController : Character
         }
     }
 
+
     private void OnDrawGizmos()
     {
+        if (walkableNode != null)
+        {
+            foreach (var node in walkableNode)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawCube(node.Position, new Vector3(1, 1, 1));
+
+            }
+        }
+
+
         if (other != null)
         {
 
@@ -113,6 +130,7 @@ public class EnemyController : Character
             Gizmos.color = Color.red;
             Gizmos.DrawCube(myNode.Position, new Vector3(1, 1, 1));
         }
+
 
     }
 
