@@ -21,6 +21,8 @@ public class PathRequestManager : MonoBehaviour
         }
     }
     [SerializeField] private PathFinding pathFinding;
+    public GridManager Grid { get; private set; }
+    
     Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
     PathRequest currentPathRequest;
 
@@ -29,6 +31,8 @@ public class PathRequestManager : MonoBehaviour
     private void Awake()
     {
         pathFinding = GetComponent<PathFinding>();
+        Grid = GetComponent<GridManager>();
+
         isProcessing = false;
     }
 

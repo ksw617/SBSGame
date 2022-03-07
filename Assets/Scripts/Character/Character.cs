@@ -9,10 +9,17 @@ public class Character : MonoBehaviour
     public float speed = 3f;
     protected Action callback;
     private Coroutine followTarget;
+    
+    protected Node currentNode;
     private void Awake()
     {
         animator = GetComponent<Animator>();
         followTarget = null;
+    }
+    protected virtual void Start()
+    {
+        currentNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
+        currentNode.occupation = gameObject.name;
     }
 
 
@@ -40,6 +47,14 @@ public class Character : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
 
+            Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
+            if (currentNode != nextNode)
+            {
+                currentNode.occupation = string.Empty;
+                currentNode = nextNode;
+                currentNode.occupation = gameObject.name;
+            }
+
             if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
             {
                 nextPosition = points.Pop();
@@ -54,6 +69,14 @@ public class Character : MonoBehaviour
         while (true)
         {
             transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
+
+            Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
+            if (currentNode != nextNode)
+            {
+                currentNode.occupation = string.Empty;
+                currentNode = nextNode;
+                currentNode.occupation = gameObject.name;
+            }
 
             if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
             {

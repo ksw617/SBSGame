@@ -5,11 +5,11 @@ using UnityEngine;
 public class PathFinding : MonoBehaviour
 {
     [SerializeField] private PathRequestManager pathRequestManager;
-    [SerializeField] private Grid grid;
+    [SerializeField] private GridManager grid;
 
     private void Awake()
     {
-        grid = GetComponent<Grid>();
+        grid = GetComponent<GridManager>();
         pathRequestManager = GetComponent<PathRequestManager>();
     }
 
