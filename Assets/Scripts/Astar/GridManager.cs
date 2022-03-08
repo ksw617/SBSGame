@@ -7,7 +7,7 @@ public class GridManager : MonoBehaviour
     public Vector2 gridWorldSize;
     public LayerMask block;
 
-    public Node[,] grid;
+    private Node[,] grid;
     public float nodeRadius;
     [SerializeField] private float nodeDiameter;
     public int nodeXCount, nodeYCount;
@@ -44,7 +44,7 @@ public class GridManager : MonoBehaviour
 
         for (int x = -1; x <= 1; x++)
         {
-            for (int y = -1; y <= 1 ; y++)
+            for (int y = -1; y <= 1; y++)
             {
                 if (x == 0 && y == 0)
                 {
@@ -54,21 +54,33 @@ public class GridManager : MonoBehaviour
                 int checkX = currentNode.X + x;
                 int checkY = currentNode.Y + y;
 
-                if ((0 <= checkX && checkX < nodeXCount) && (0 <= checkY && checkY < nodeYCount))
+                Node checkNode = CheckNode(checkX, checkY);
+
+                if (checkNode != null)
                 {
-                    Node checkNode = grid[checkX, checkY];
-                    if (checkNode.Walkable)
-                    {
-                        neighbors.Add(checkNode);
-                    }
+                    neighbors.Add(checkNode);
                 }
+
             }
         }
 
         return neighbors;
     }
 
-    
+    public Node GetNode(int x, int y) => grid[x, y];
+
+    public Node CheckNode(int x, int y)
+    {
+        if ((0 <= x && x < nodeXCount) && (0 <= y && y < nodeYCount))
+        {
+            Node checkNode = grid[x, y];
+            if (checkNode.Walkable)
+            {
+                return checkNode;
+            }
+        }
+        return null;
+    }
     public Node GetNodeFromPosition(Vector3 pos)
     {
         float percentX = ((pos.x - nodeRadius) / gridWorldSize.x + 0.5f);

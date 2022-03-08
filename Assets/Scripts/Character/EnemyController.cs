@@ -34,44 +34,62 @@ public class EnemyController : Character
     {
         //¿Ü°¢¼± ÁÂÇ¥
         List<Node> nodes = new();
+        Vector2Int center = new Vector2Int(nCenterX, nCenterY);
 
         for (int index = 1; index < nRange; index++)
         {
             for (int i = 0; i < index; i++)
             {
-
-                Vector2Int point = new Vector2Int(nCenterX - i, nCenterY - index + i);
-                CheckNode(nodes, point);
-
-                point = new Vector2Int(nCenterX - index + i, nCenterY + i);
-                CheckNode(nodes, point);
-
-                point = new Vector2Int(nCenterX + i, nCenterY + index - i);
-                CheckNode(nodes, point);
-
-                point = new Vector2Int(nCenterX + index - i, nCenterY - i);
-                CheckNode(nodes, point);
-
+                if (SerchNodes(nodes, center, index, i))
+                {
+                    return nodes;
+                }
             }
         }
-
-
 
         return nodes;
     }
 
-    private void CheckNode(List<Node> nodes, Vector2Int point)
+    private bool SerchNodes(List<Node> nodes, Vector2Int center, int index, int i)
     {
         GridManager grid = PathRequestManager.Instance.Grid;
+        Vector2Int[] points = GetNeighborNodes(center, index, i);
 
-        if ((0 <= point.x && point.x < grid.nodeXCount) && (0 <= point.y && point.y < grid.nodeYCount))
+        foreach (var point in points)
         {
-            if (grid.grid[point.x, point.y].Walkable)
+            Node checkNode = grid.CheckNode(point.x, point.y);
+            if (checkNode != null)
             {
-                nodes.Add(grid.grid[point.x, point.y]);
+                if (checkNode.occupation == "Player")
+                {
+                    if (nodes.Count > 0)
+                    {
+                        nodes.Clear();
+                    }
+                    nodes.Add(checkNode);
+                    return true;
+                }
+
+                nodes.Add(checkNode);
             }
         }
+
+        return false;
     }
+
+    private Vector2Int[] GetNeighborNodes(Vector2Int center, int index, int i)
+    {
+        Vector2Int[] points = new Vector2Int[4];
+        
+        points[0] = new Vector2Int(center.x - i, center.y - index + i);
+        points[1] = new Vector2Int(center.x - index + i, center.y + i);
+        points[2] = new Vector2Int(center.x + i, center.y + index - i);
+        points[3] = new Vector2Int(center.x + index - i, center.y - i);
+        
+        return points;
+    }
+
+
 
 
     // private void OnDrawGizmos()
