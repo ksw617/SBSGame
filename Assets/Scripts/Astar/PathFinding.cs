@@ -101,7 +101,6 @@ public class PathFinding : MonoBehaviour
 
         return SimplifyPath(path);
     }
-
     Stack<Vector3> SimplifyPath(List<Node> path)
     {
         Stack<Vector3> wayPoints = new Stack<Vector3>();

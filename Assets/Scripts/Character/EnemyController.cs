@@ -67,6 +67,7 @@ public class EnemyController : Character
                         nodes.Clear();
                     }
                     nodes.Add(checkNode);
+                    callback = ArriveDestination;
                     return true;
                 }
 
@@ -89,38 +90,8 @@ public class EnemyController : Character
         return points;
     }
 
-
-
-
-    // private void OnDrawGizmos()
-    // {
-    //     if (walkableNode != null)
-    //     {
-    //         foreach (var node in walkableNode)
-    //         {
-    //             Gizmos.color = Color.green;
-    //             Gizmos.DrawCube(node.Position, new Vector3(1, 1, 1));
-    //
-    //         }
-    //     }
-    //
-    //
-    //     if (other != null)
-    //     {
-    //
-    //         Gizmos.color = Color.blue;
-    //         Gizmos.DrawCube(other.Position, new Vector3(1, 1, 1));
-    //     }
-    //
-    //     if (myNode != null)
-    //     {
-    //
-    //         Gizmos.color = Color.red;
-    //         Gizmos.DrawCube(myNode.Position, new Vector3(1, 1, 1));
-    //     }
-    //
-    //
-    // }
-
-
+    private void ArriveDestination()
+    {
+        Debug.Log("Test");
+    }
 }

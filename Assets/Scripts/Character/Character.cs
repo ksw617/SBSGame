@@ -11,6 +11,8 @@ public class Character : MonoBehaviour
     private Coroutine followTarget;
     
     protected Node currentNode;
+
+   
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -36,66 +38,76 @@ public class Character : MonoBehaviour
         }
     }
 
-
+    Vector3 nextPosition;
     IEnumerator FollowTarget(Stack<Vector3> points)
     {
-        Vector3 nextPosition = points.Pop();
+        nextPosition = points.Pop();
         transform.LookAt(nextPosition);
         animator.SetFloat("Speed", 1f);
 
-        while (points.Count > 0)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
+        float tickTime = 0f;
 
-            Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
-            if (currentNode != nextNode)
-            {
-                currentNode.occupation = string.Empty;
-                currentNode = nextNode;
-                currentNode.occupation = gameObject.name;
-            }
-
-            if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
-            {
-                nextPosition = points.Pop();
-                transform.LookAt(nextPosition);
-            }
-
-            yield return new WaitForFixedUpdate();
-
-        }
-
-        transform.LookAt(nextPosition);
         while (true)
         {
+            //움직임
             transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
-
-            Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
-            if (currentNode != nextNode)
+         
+            //25번 돌때
+            if (tickTime > 0.5f)
             {
-                currentNode.occupation = string.Empty;
-                currentNode = nextNode;
-                currentNode.occupation = gameObject.name;
+                //1번 도는거
+
+                //노드 업데이트
+                Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
+                if (currentNode != nextNode)
+                {
+                    currentNode.occupation = string.Empty;
+                    currentNode = nextNode;
+                    currentNode.occupation = gameObject.name;
+                }
+
+                //목적지 도착 확인 & 업데이트
+                if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
+                {
+                    if (points.Count == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        nextPosition = points.Pop();
+                        transform.LookAt(nextPosition);
+                    }
+                }
+
+                tickTime = 0f;
             }
 
-            if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
-            {
-                break;
-            }
+            tickTime += Time.fixedDeltaTime; // 0.02f
 
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate(); // 0.02초 씩 
+
         }
 
         animator.SetFloat("Speed", 0f);
-
-
-        //if (callback != null)
-        //{
-        //    callback();
-        //}
 
         callback?.Invoke();
         followTarget = null;
         yield return null;
     }
+
+     private void OnDrawGizmos()
+     {
+
+    
+         if (nextPosition != null)
+         {
+    
+             Gizmos.color = Color.green;
+             Gizmos.DrawCube(nextPosition, new Vector3(1, 1, 1));
+         }
+    
+
+     }
+
 }
