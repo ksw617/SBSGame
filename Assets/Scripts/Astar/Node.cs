@@ -1,10 +1,25 @@
 using UnityEngine;
 
+public enum NodeState
+{
+    Empty, Pass, Block
+}
+
 [System.Serializable]
 public class Node : INode<Node>
 {
+   
     public string occupation;
     public Node Parent;
+
+    public NodeState State { get; set; }
+
+    //1.public Vector2Int Offset { get => new Vector2Int(X, Y); }
+    //2.public Vector2Int Offset => new Vector2Int(X, Y);
+    //3.public Vector2Int Offset => new(X, Y);
+    //4.public Vector2Int Offset { get => new(X, Y); }
+
+    public Vector2Int Offset => new(X, Y);
 
     public int X { get; set; }
     public int Y { get; set; }
@@ -23,6 +38,8 @@ public class Node : INode<Node>
         X = x;
         Y = y;
         Walkable = walkable;
+        State = NodeState.Empty;
+
     }
 
     public int CompareTo(Node other)

@@ -13,6 +13,8 @@ public class GridManager : MonoBehaviour
     public int nodeXCount, nodeYCount;
 
     public int GridCount { get => nodeXCount * nodeYCount; }
+    public Node GetNode(int x, int y) => grid[x, y];
+    public Node GetNode(Vector2Int offset) => grid[offset.x, offset.y];
 
     private void Awake()
     {
@@ -67,7 +69,7 @@ public class GridManager : MonoBehaviour
         return neighbors;
     }
 
-    public Node GetNode(int x, int y) => grid[x, y];
+   
 
     public Node CheckNode(int x, int y)
     {

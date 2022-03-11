@@ -9,10 +9,11 @@ public class Character : MonoBehaviour
     public float speed = 3f;
     protected Action callback;
     private Coroutine followTarget;
-    
+
     protected Node currentNode;
 
-   
+    private Stack<Vector2Int> points = new();
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -25,7 +26,7 @@ public class Character : MonoBehaviour
     }
 
 
-    protected void CallFollowTarget(Stack<Vector3> path, bool isSuccess)
+    protected void CallFollowTarget(Stack<Vector2Int> path, bool isSuccess)
     {
         if (isSuccess)
         {
@@ -34,60 +35,35 @@ public class Character : MonoBehaviour
                 StopCoroutine(followTarget);
             }
 
-            followTarget = StartCoroutine(FollowTarget(path));
+            animator.SetFloat("Speed", 1f);
+            points = path;
+            followTarget = StartCoroutine(GoNextNode());
         }
     }
 
-    Vector3 nextPosition;
-    IEnumerator FollowTarget(Stack<Vector3> points)
+    Node nextNode;
+    IEnumerator GoNextNode()
     {
-        nextPosition = points.Pop();
-        transform.LookAt(nextPosition);
-        animator.SetFloat("Speed", 1f);
+        Vector2Int next = points.Pop();
+        nextNode = PathRequestManager.Instance.Grid.GetNode(next);
 
-        float tickTime = 0f;
-
-        while (true)
+        switch (nextNode.State)
         {
-            //움직임
-            transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.fixedDeltaTime * speed);
-         
-            //25번 돌때
-            if (tickTime > 0.5f)
-            {
-                //1번 도는거
-
-                //노드 업데이트
-                Node nextNode = PathRequestManager.Instance.Grid.GetNodeFromPosition(transform.position);
-                if (currentNode != nextNode)
-                {
-                    currentNode.occupation = string.Empty;
-                    currentNode = nextNode;
-                    currentNode.occupation = gameObject.name;
-                }
-
-                //목적지 도착 확인 & 업데이트
-                if (Vector3.Distance(transform.position, nextPosition) <= 0.1f)
-                {
-                    if (points.Count == 0)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        nextPosition = points.Pop();
-                        transform.LookAt(nextPosition);
-                    }
-                }
-
-                tickTime = 0f;
-            }
-
-            tickTime += Time.fixedDeltaTime; // 0.02f
-
-            yield return new WaitForFixedUpdate(); // 0.02초 씩 
-
+            case NodeState.Empty:
+                //이동
+                StartCoroutine(Move(nextNode));
+                break;
+            case NodeState.Pass:
+                //0.5초 기다림
+                break;
+            case NodeState.Block:
+                //재탐색
+                break;
         }
+        transform.LookAt(nextNode.Position);
+
+
+        
 
         animator.SetFloat("Speed", 0f);
 
@@ -96,18 +72,39 @@ public class Character : MonoBehaviour
         yield return null;
     }
 
-     private void OnDrawGizmos()
-     {
+    IEnumerator Move(Node nextNode)
+    {
 
-    
-         if (nextPosition != null)
-         {
-    
-             Gizmos.color = Color.green;
-             Gizmos.DrawCube(nextPosition, new Vector3(1, 1, 1));
-         }
-    
+        //currentNode.occupation = string.Empty;
+        //currentNode.State = NodeState.Empty;
+        //currentNode = nextNode;
+        //currentNode.occupation = gameObject.name;
+        //
+        //currentNode.State = NodeState.Pass;
+        //구현
 
-     }
+        while (Vector3.Distance(transform.position, nextNode.Position) >= 0.1f)
+        {
+            //이동
+            transform.position = Vector3.MoveTowards(transform.position, nextNode.Position, Time.fixedDeltaTime * speed);
+
+            yield return new WaitForFixedUpdate();
+
+        }
+
+        StartCoroutine(GoNextNode());
+
+        yield return null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (nextNode != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawCube(nextNode.Position, new Vector3(1, 1, 1));
+        }
+    }
+
 
 }

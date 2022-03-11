@@ -19,14 +19,15 @@ public class PathFinding : MonoBehaviour
     }
     public IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
     {
-        Stack<Vector3> wayPoints = new Stack<Vector3>();
+        //Stack<Vector2Int> wayPoints = new Stack<Vector2Int>();
+        Stack<Vector2Int> wayPoints = new();
         bool pathfindingSuccess = false;
 
         Node startNode = grid.GetNodeFromPosition(startPos);
         Node targetNode = grid.GetNodeFromPosition(targetPos);
 
-        PriorityQueue<Node> openSet = new PriorityQueue<Node>(grid.GridCount);
-        HashSet<Node> closeSet = new HashSet<Node>();
+        PriorityQueue<Node> openSet = new(grid.GridCount);
+        HashSet<Node> closeSet = new();
 
         openSet.Push(startNode);
 
@@ -86,39 +87,23 @@ public class PathFinding : MonoBehaviour
         yield return null;
     }
 
-    Stack<Vector3> GetPath(Node startNode, Node targetNode)
+    Stack<Vector2Int> GetPath(Node startNode, Node targetNode)
     {
-        List<Node> path = new List<Node>();
+        //Stack<Vector2Int> path = new Stack<Vector2Int>();
+        Stack<Vector2Int> path = new();
 
         Node currentNode = targetNode;
-        path.Add(currentNode);
+        path.Push(currentNode.Offset);
 
         while (currentNode != startNode)
         {
             currentNode = currentNode.Parent;
-            path.Add(currentNode);
+            path.Push(currentNode.Offset);
         }
 
-        return SimplifyPath(path);
+        return path;
     }
-    Stack<Vector3> SimplifyPath(List<Node> path)
-    {
-        Stack<Vector3> wayPoints = new Stack<Vector3>();
-        Vector2Int oldDirection = Vector2Int.zero; 
-
-        for (int i = 1; i < path.Count; i++)
-        {
-            Vector2Int newDirection = new Vector2Int(path[i-1].X - path[i].X, path[i-1].Y - path[i].Y);
-            if (oldDirection != newDirection)
-            {
-                wayPoints.Push(path[i - 1].Position);
-                oldDirection = newDirection;
-            }
-        }
-
-        return wayPoints;
-    }
-
+   
     int GetDistance(Node nodeA, Node nodeB)
     {
         int disX = Mathf.Abs(nodeA.X - nodeB.X);

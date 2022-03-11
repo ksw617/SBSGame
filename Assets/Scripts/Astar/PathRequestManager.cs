@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -36,7 +35,7 @@ public class PathRequestManager : MonoBehaviour
         isProcessing = false;
     }
 
-    public void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Stack<Vector3>, bool> pathCallbak)
+    public void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Stack<Vector2Int>, bool> pathCallbak)
     {
         PathRequest pathRequest = new PathRequest(pathStart, pathEnd, pathCallbak);
         pathRequestQueue.Enqueue(pathRequest);
@@ -55,7 +54,7 @@ public class PathRequestManager : MonoBehaviour
         }
     }
 
-    public void FinishPathfinding(Stack<Vector3> path, bool success)
+    public void FinishPathfinding(Stack<Vector2Int> path, bool success)
     {
         isProcessing = false;
 
@@ -68,9 +67,9 @@ public class PathRequestManager : MonoBehaviour
     {
         public Vector3 pathStart;
         public Vector3 pathEnd;
-        public Action<Stack<Vector3>, bool> pathCallback;
+        public Action<Stack<Vector2Int>, bool> pathCallback;
 
-        public PathRequest(Vector3 start, Vector3 end, Action<Stack<Vector3>, bool> callback)
+        public PathRequest(Vector3 start, Vector3 end, Action<Stack<Vector2Int>, bool> callback)
         {
             pathStart = start;
             pathEnd = end;
