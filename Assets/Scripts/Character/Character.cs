@@ -8,16 +8,17 @@ public class Character : MonoBehaviour
     [SerializeField] protected Animator animator;
     public float speed = 3f;
     protected Action callback;
-    private Coroutine followTarget;
 
+    protected Node targetNode;
     protected Node currentNode;
 
     private Stack<Vector2Int> points = new();
 
+    private int waitCount;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        followTarget = null;
     }
     protected virtual void Start()
     {
@@ -25,28 +26,35 @@ public class Character : MonoBehaviour
         currentNode.occupation = gameObject.name;
     }
 
-
     protected void CallFollowTarget(Stack<Vector2Int> path, bool isSuccess)
     {
         if (isSuccess)
-        {
-            if (followTarget != null)
-            {
-                StopCoroutine(followTarget);
-            }
-
-            animator.SetFloat("Speed", 1f);
+        {   
             points = path;
-            followTarget = StartCoroutine(GoNextNode());
+            GoNextNode();
         }
     }
-
-    Node nextNode;
-    IEnumerator GoNextNode()
+    void GoNextNode()
     {
-        Vector2Int next = points.Pop();
-        nextNode = PathRequestManager.Instance.Grid.GetNode(next);
+        if (points.Count > 0)
+        {
+            Vector2Int next = points.Pop();
+            Node nextNode = PathRequestManager.Instance.Grid.GetNode(next);
 
+            waitCount = 0;
+            CheckNextStep(nextNode);        
+        }
+        else
+        {
+            animator.SetFloat("Speed", 0f);
+            currentNode.State = NodeState.Block;
+            callback?.Invoke();// Stop
+        }
+
+    }
+
+    void CheckNextStep(Node nextNode)
+    {
         switch (nextNode.State)
         {
             case NodeState.Empty:
@@ -54,33 +62,26 @@ public class Character : MonoBehaviour
                 StartCoroutine(Move(nextNode));
                 break;
             case NodeState.Pass:
-                //0.5초 기다림
+                StartCoroutine(Wait(nextNode));
                 break;
             case NodeState.Block:
-                //재탐색
+                ReserchPath();
                 break;
         }
-        transform.LookAt(nextNode.Position);
-
-
-        
-
-        animator.SetFloat("Speed", 0f);
-
-        callback?.Invoke();
-        followTarget = null;
-        yield return null;
     }
-
     IEnumerator Move(Node nextNode)
     {
+        waitCount = 0;
 
-        //currentNode.occupation = string.Empty;
-        //currentNode.State = NodeState.Empty;
-        //currentNode = nextNode;
-        //currentNode.occupation = gameObject.name;
-        //
-        //currentNode.State = NodeState.Pass;
+        animator.SetFloat("Speed", 1f);
+        transform.LookAt(nextNode.Position);
+
+        currentNode.occupation = string.Empty;
+        currentNode.State = NodeState.Empty;
+        currentNode = nextNode;
+        currentNode.occupation = gameObject.name;
+        currentNode.State = NodeState.Pass;
+       
         //구현
 
         while (Vector3.Distance(transform.position, nextNode.Position) >= 0.1f)
@@ -92,19 +93,36 @@ public class Character : MonoBehaviour
 
         }
 
-        StartCoroutine(GoNextNode());
+        GoNextNode();
 
         yield return null;
     }
 
-    private void OnDrawGizmos()
+    IEnumerator Wait(Node nextNode)
     {
-        if (nextNode != null)
+        animator.SetFloat("Speed", 0f);
+        waitCount++;
+        if (waitCount > 5)
         {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawCube(nextNode.Position, new Vector3(1, 1, 1));
+            ReserchPath();
         }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+            Debug.Log($"기다림 {gameObject.name}");
+            CheckNextStep(nextNode);
+        }
+
+
+        yield return null;
+
     }
 
+    private void ReserchPath()
+    {
+        waitCount = 0;
+        Debug.Log($"재탐색 {gameObject.name}");
+        PathRequestManager.Instance.RequestPath(transform.position, targetNode.Position, CallFollowTarget);
+    }
 
 }

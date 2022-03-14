@@ -17,15 +17,12 @@ public class EnemyController : Character
 
     IEnumerator StartFindDestination()
     {
-        //yield return new WaitForSeconds(3f);
-
-
         List<Node> walkableNode = GetNodes(15, currentNode.X, currentNode.Y);
 
         int randIndex = Random.Range(0, walkableNode.Count);
-        Node other = walkableNode[randIndex];
+        targetNode = walkableNode[randIndex];
 
-        PathRequestManager.Instance.RequestPath(transform.position, other.Position, CallFollowTarget);
+        PathRequestManager.Instance.RequestPath(transform.position, targetNode.Position, CallFollowTarget);
         yield return null;
     }
 
@@ -92,6 +89,6 @@ public class EnemyController : Character
 
     private void ArriveDestination()
     {
-        Debug.Log("Test");
+        Debug.Log("Player¿¡ µµÂø");
     }
 }

@@ -76,7 +76,7 @@ public class GridManager : MonoBehaviour
         if ((0 <= x && x < nodeXCount) && (0 <= y && y < nodeYCount))
         {
             Node checkNode = grid[x, y];
-            if (checkNode.Walkable)
+            if (checkNode.Walkable && checkNode.State != NodeState.Block && checkNode.State != NodeState.Pass) // º¯°æ
             {
                 return checkNode;
             }
@@ -107,15 +107,27 @@ public class GridManager : MonoBehaviour
             {
                 Gizmos.color = node.Walkable ?  Color.white : Color.black;
 
-                switch (node.occupation)
+                //switch (node.occupation)
+                //{
+                //    case "Player":
+                //        Gizmos.color = Color.blue;
+                //        break;
+                //    case "Enemy":
+                //        Gizmos.color = Color.red;
+                //        break;
+                //    default:
+                //        break;
+                //}
+
+                switch (node.State)
                 {
-                    case "Player":
+                    case NodeState.Empty:
+                        break;
+                    case NodeState.Pass:
                         Gizmos.color = Color.blue;
                         break;
-                    case "Enemy":
-                        Gizmos.color = Color.red;
-                        break;
-                    default:
+                    case NodeState.Block:
+                        Gizmos.color = Color.black;
                         break;
                 }
 

@@ -19,7 +19,6 @@ public class PathFinding : MonoBehaviour
     }
     public IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
     {
-        //Stack<Vector2Int> wayPoints = new Stack<Vector2Int>();
         Stack<Vector2Int> wayPoints = new();
         bool pathfindingSuccess = false;
 
@@ -89,16 +88,14 @@ public class PathFinding : MonoBehaviour
 
     Stack<Vector2Int> GetPath(Node startNode, Node targetNode)
     {
-        //Stack<Vector2Int> path = new Stack<Vector2Int>();
         Stack<Vector2Int> path = new();
 
         Node currentNode = targetNode;
-        path.Push(currentNode.Offset);
 
         while (currentNode != startNode)
         {
-            currentNode = currentNode.Parent;
             path.Push(currentNode.Offset);
+            currentNode = currentNode.Parent;
         }
 
         return path;
